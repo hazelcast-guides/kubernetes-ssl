@@ -4,9 +4,10 @@ This is the base template for Hazelcast integration module guides.
 You can clone this repository, work on it and create your guide, and then push to a new repository.
 ////
 
-:github-address: [github-repo-address-of-your-guide]
-
-:templates-url: https://raw.githubusercontent.com/hazelcast-guides/adoc-templates/master
+:github-address: https://github.com/hazelcast-guides/kubernetes-ssl
+:templates-url: templates:ROOT:page$/
+:hazelcast: Hazelcast IMDG
+:framework: Kubernetes
 
 // Use this relative url if you are going to publish the guide on the guides site.
 // Note that this url will not work locally and raise asciidoctor errors.
@@ -15,32 +16,233 @@ You can clone this repository, work on it and create your guide, and then push t
 //
 // :templates-url: templates:ROOT:page$/
 
-= Title
+= Hazelcast with SSL (Enterprise Only)
 
-// Content entered directly below the header but before the first section heading is called the preamble.
+This a complete example presenting how to use Hazelcast Enterprise with SSL enabled on the connections between Hazelcast Members and Hazelcast Client.
 
 include::{templates-url}/link-to-repo.adoc[]
 
 == What You’ll Learn
 
-// Define the problem and tell reader what he/she will learn from this guide.
+In this guide you will learn how to enable SSL between Hazelcast Members and Hazelcast Client.
 
-== Prerequisites
+== Introduction
 
-// Define the prerequisites for the guide.
+This example focuses on the security features and assumes that you have some general knowledge about:
 
-////
-Write the steps in your guide here by making each step a different section
-////
+* Hazelcast on Kubernetes:
+** https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes README]
+** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes[Hazelcast Kubernetes Code Sample]
+** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes/samples/embedded[Hazelcast Kubernetes Embedded Code Sample]
+* Java KeyStore and TrustStore
+** https://docs.oracle.com/cd/E19509-01/820-3503/6nf1il6er/index.html[Oracle's introduction to KeyStore and TrustStore]
+** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes/samples/ssl#how-keystore-and-truststore-were-generated[How KeyStore and TrustStore were Generated]
 
-== Summary
+The example also assumes you have a running Kubernetes cluster, and the `kubectl` tool installed.
 
-// Provide a quick summary
+== 1. Creating Hazelcast Cluster
 
-== See Also
+Hazelcast must have access to `hazelcast.yaml` as well as `keystore` and `truststore`, so we'll store them as `ConfigMap/Secret`.
 
-// Add some links to resources, such as other related guides.
-// Use relative links used on the home page (see https://raw.githubusercontent.com/hazelcast-guides/guides-site/master/home/modules/ROOT/pages/index.adoc)
+[source, shell]
+----
+$ kubectl create configmap hazelcast-configuration --from-file=server/hazelcast.yaml
+$ kubectl create secret generic keystore \
+                 --from-file=server/keystore \
+                 --from-file=server/truststore \
+                 --from-literal keystorePassword=123456 \
+                 --from-literal truststorePassword=123456
+----
 
-- xref:hazelcast-embedded-springboot:ROOT:index.adoc[Hazelcast in SpringBoot]
-- xref:hazelcast-quarkus:ROOT:index.adoc[Hazelcast Client for Quarkus] 
+Next, you need to create a secret with Hazelcast Enterprise License (if you don't have one, get a trial license key from this https://hazelcast.com/get-started/#deploymenttype-imdg[link]).
+
+[source, shell]
+----
+$ kubectl create secret generic hz-license-key --from-literal license=<hz-license-key>
+----
+
+Now grant access to Kubernetes API with `rbac.yaml` and deploy Hazelcast cluster to Kubernetes.
+
+[source, shell]
+----
+$ kubectl apply -f server/rbac.yaml
+$ kubectl apply -f server/statefulset.yaml
+----
+
+You can check in the logs that Hazelcast cluster has been formed and that SSL is enabled for the communication.
+
+[source, shell]
+----
+$ kubectl logs pod/hazelcast-0
+...
+INFO: [10.172.2.29]:5701 [dev] [4.0] SSL is enabled
+...
+Members {size:3, ver:3} [
+	Member [10.172.2.29]:5701 - 633c9707-df88-4bd8-b247-3849b596b07c this
+	Member [10.172.0.14]:5701 - e79cc867-2c7f-463c-a3de-fbd2129d4640
+	Member [10.172.1.11]:5701 - f15a3630-5410-4e02-8c2a-0bb0b81f4639
+]
+----
+
+== 2. Starting Hazelcast Client
+
+As a client side, you'll deploy a Spring Boot application which connects to the Hazelcast cluster.
+
+The application already includes the client configuration and `truststore`. All you need to do is to compile, package, create Docker image, and push it into your Docker Hub account. You may do it all with the following commands.
+
+[source, shell]
+----
+$ mvn clean package
+$ docker build -t leszko/hazelcast-client client
+$ docker push leszko/hazelcast-client
+----
+
+Please change `leszko` to your Docker Hub login. Then, make sure your image in Docker Hub is public (you can do it on the https://hub.docker.com/[Docker Hub website]).
+
+Now you can edit `client/deployment.yaml` and change `leszko` to your Docker Hub account and finally deploy the Hazelcast client application to Kubernetes.
+
+[source, shell]
+----
+$ kubectl apply -f client/deployment.yaml
+----
+
+You can see that the client connected to the cluster using SSL by checking the logs.
+
+[source, shell]
+----
+$ kubectl logs pod/hazelcast-client-9f9c9f664-4xn6z
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.2.6.RELEASE)
+...
+2020-11-11 13:01:14.576  INFO 1 --- [           main] c.hazelcast.client.impl.ClientExtension  : SSL is enabled
+...
+Members [3] {
+	Member [10.172.2.29]:5701 - 633c9707-df88-4bd8-b247-3849b596b07c
+	Member [10.172.0.14]:5701 - e79cc867-2c7f-463c-a3de-fbd2129d4640
+	Member [10.172.1.11]:5701 - f15a3630-5410-4e02-8c2a-0bb0b81f4639
+}
+...
+2020-11-11 13:01:17.226  INFO 1 --- [           main] com.hazelcast.kubernetes.Application     : Started Application in 8.705 seconds (JVM running for 10.03)
+----
+
+Then, assuming you have Load Balancer configured for your Kubernetes environment, you can check the public IP of your client application.
+
+[source, shell]
+----
+$ kubectl get all | grep service/hazelcast-client
+service/hazelcast-client   LoadBalancer   10.175.254.124   35.241.133.251   8080:31220/TCP   10m
+----
+
+Now, to check that everything works fine by executing the following commands.
+
+[source, shell]
+----
+$ curl "35.241.133.251:8080/put?key=some-key&value=some-value"
+{"response":null}
+
+$ curl "35.241.133.251:8080/get?key=some-key"
+{"response":"some-value"}
+----
+
+Note: In the example, we didn't use Mutual Authentication, so Hazelcast client itself was not being authorized. For more information check <<Mutual Authentication section>>.
+
+== More Information
+
+=== How KeyStore and TrustStore were Generated
+
+KeyStore and TrustStore files for this example were generated using the following commands:
+
+[source, shell]
+----
+$ keytool -genkey -alias client -keyalg RSA -keystore keystore -keysize 2048 -storepass 123456
+What is your first and last name?
+  [Unknown]:  hazelcast-mancenter
+What is the name of your organizational unit?
+  [Unknown]:
+What is the name of your organization?
+  [Unknown]:
+What is the name of your City or Locality?
+  [Unknown]:
+What is the name of your State or Province?
+  [Unknown]:
+What is the two-letter country code for this unit?
+  [Unknown]:
+Is CN=my-release-hazelcast-enterprise-mancenter, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+  [no]:  yes
+
+$ keytool -export -alias client -file client.crt -keystore keystore -storepass 123456
+Certificate stored in file <client.crt>
+
+$ keytool -import -v -trustcacerts -alias client -file client.crt -keystore truststore -storepass 123456
+Owner: CN=my-release-hazelcast-enterprise-mancenter, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+Issuer: CN=my-release-hazelcast-enterprise-mancenter, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+Serial number: 7c8af8f7
+Valid from: Wed Nov 28 13:41:29 GMT 2018 until: Tue Feb 26 13:41:29 GMT 2019
+Certificate fingerprints:
+         SHA1: 0B:8B:B2:F2:BA:DA:4F:3E:88:90:A7:7E:47:4A:DE:18:BE:DD:7E:5D
+         SHA256: A9:A4:EE:BB:1E:FB:A2:0F:18:D0:34:09:07:0A:63:AE:62:4E:F6:1B:A0:4F:E1:D2:6A:CD:EB:2B:91:D2:EE:29
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+Extensions:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: F1 CC 48 90 06 75 D0 51   1D 75 D8 E0 16 DC 66 04  ..H..u.Q.u....f.
+0010: FC 4D A3 9B                                        .M..
+]
+]
+
+Trust this certificate? [no]:  yes
+Certificate was added to keystore
+[Storing truststore]
+
+$ rm client.crt
+----
+
+[NOTE]
+====
+We used `hazelcast-mancenter` as the hostname, which means that if you start Management Center, its service must be named `hazelcast-mancenter` (otherwise the hostname verification fails).
+====
+
+=== Mutual Authentication section
+
+SSL Mutual Authentication can be enabled to increase the security. To enable it, you need to configure it in both Hazelcast Server and Hazelcast Client.
+
+[NOTE]
+====
+Currently, Mutual Authentication does not work with `livenessProbe`/`readinessProbe` enabled.
+====
+
+==== Hazelcast Server
+
+Add the following line to the ssl properties section (in hazelcast.yaml):
+
+[source, yaml]
+----
+mutualAuthentication: REQUIRED
+----
+
+==== Hazelcast Client
+
+Add the following lines to the `SSLConfig` object in `hazelcastConfig()` (in the file `Application.java`):
+
+[source, java]
+----
+.setProperty("keyStore", "keystore")
+.setProperty("keyStorePassword", System.getEnv("KEYSTORE_PASSWORD"))
+----
+
+You also need to add keystore into resources by appending the following line to Dockerfile:
+
+[source, dockerfile]
+----
+COPY src/main/resources/keystore keystore
+----

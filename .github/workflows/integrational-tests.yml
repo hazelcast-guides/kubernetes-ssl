@@ -37,7 +37,7 @@ jobs:
           echo "::set-output name=ssl_log::$sslEnabledLog"
 
       - name: Fail if SSL not enabled
-        if: !contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled')
+        if: (!contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled'))
         run: |-
           echo "SSL not enabled"
           exit 1

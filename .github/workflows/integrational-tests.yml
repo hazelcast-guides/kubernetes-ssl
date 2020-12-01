@@ -35,4 +35,6 @@ jobs:
           sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
           echo "~~~"
           echo $sslEnabledLog
+          [[ -z "$sslEnabledLog" ]] && echo "not empty"
+          [[ -z "" ]] && echo "emtpy"
           [[ -z "$sslEnabledLog" ]] && exit 1

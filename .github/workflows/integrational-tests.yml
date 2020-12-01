@@ -38,7 +38,7 @@ jobs:
         run: |-
           kubectl logs pod/hazelcast-0
           sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
-          members=$(kubectl logs pod/hazelcast-2 | grep "Members [3]")
+          members=$(kubectl logs pod/hazelcast-2 | grep "Members")
           echo "::set-output name=ssl_log::$sslEnabledLog"
           echo "::set-output name=members::$members"
 

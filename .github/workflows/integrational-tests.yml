@@ -27,8 +27,10 @@ jobs:
       - name: Test for successful Deployment
         run: |-
           kubectl wait --for=condition=ready pod/hazelcast-0 --timeout=150s
+          kubectl wait --for=condition=ready pod/hazelcast-1 --timeout=150s
 
       - name: Check for SSL enabled
         run: |-
+          kubectl logs pod/hazelcast-0
           sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
           [ -z "$sslEnabledLog" ] && exit 1

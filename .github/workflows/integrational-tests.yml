@@ -37,11 +37,10 @@ jobs:
         id: ssl_check
         run: |-
           logs=$(kubectl logs pod/hazelcast-0)
+          echo "$logs"
           sslEnabledLog=$(echo "$logs" | grep "SSL is enabled")
-          members=$(echo "$logs" | grep "Members \[3\]")
-          echo "~~~~~~~"
-          echo "$members"
           echo "::set-output name=ssl_log::$sslEnabledLog"
+          members=$(echo "$logs" | grep "Members \[3\]")
           echo "::set-output name=members::$members"
 
       - name: Fail if SSL not enabled

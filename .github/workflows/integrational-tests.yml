@@ -36,15 +36,19 @@ jobs:
       - name: Check for SSL enabled
         id: ssl_check
         run: |-
-          logs=$(kubectl logs pod/hazelcast-0)
-          echo "$logs"
-          sslEnabledLog=$(echo "$logs" | grep "SSL is enabled")
+          sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
           echo "::set-output name=ssl_log::$sslEnabledLog"
-          members=$(echo "$logs" | grep "Members \[3\]")
-          echo "::set-output name=members::$members"
+
+      - name: Deploy client
+        id: client
+        run: |-
+          kubectl apply -f client/deployment.yaml
+          kubectl wait --for=condition=available deployment/hazelcast-client --timeout=200s
+          kubectl logs deployment/hazelcast-client
+
 
       - name: Fail if SSL not enabled
-        if: (!contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled') || !contains(steps.ssl_check.outputs.members, 'Members [3]'))
+        if: (!contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled') || !contains(steps.client.outputs.members, 'Members [3]'))
         run: |-
           echo "SSL not enabled"
           exit 1

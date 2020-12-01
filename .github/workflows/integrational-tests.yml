@@ -30,11 +30,14 @@ jobs:
           kubectl wait --for=condition=ready pod/hazelcast-1 --timeout=150s
 
       - name: Check for SSL enabled
+        id: ssl_check
         run: |-
           kubectl logs pod/hazelcast-0
           sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
-          echo "~~~"
-          echo $sslEnabledLog
-          [[ -z "$sslEnabledLog" ]] && echo "not empty"
-          [[ -z "" ]] && echo "emtpy"
-          [[ -z "$sslEnabledLog" ]] && exit 1
+          echo "::set-output name=ssl_log::$sslEnabledLog"
+
+      - name: Fail if SSL not enabled
+        if: !contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled')
+        run: |-
+          echo "SSL not enabled"
+          exit 1

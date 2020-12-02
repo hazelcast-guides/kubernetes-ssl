@@ -47,7 +47,8 @@ jobs:
           kubectl wait --for=condition=ready pod/$podName --timeout=200s
           # sleep for 10 seconds so that Spring application is started
           sleep 10
-          kubectl logs pod/$podName
+          members=$(kubectl logs pod/$podName | grep "Members")
+          echo "::set-output name=members::$members"
 
       - name: Fail if SSL not enabled
         if: (!contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled'))

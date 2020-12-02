@@ -19,8 +19,8 @@ This example focuses on the security features and assumes that you have some gen
 
 * Hazelcast on Kubernetes:
 ** https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes README]
-** https://guides.hazelcast.org/kubernetes/[Hazelcast Kubernetes Guide]
-** https://guides.hazelcast.org/kubernetes-embedded/[Hazelcast Kubernetes Embedded Guide]
+** xref:kubernetes:ROOT:index.adoc[Hazelcast on Kubernetes Guide]
+** xref:kubernetes-embedded:ROOT:index.adoc[Embedded Hazelcast on Kubernetes Guide]
 * Java KeyStore and TrustStore
 ** https://docs.oracle.com/cd/E19509-01/820-3503/6nf1il6er/index.html[Oracle's introduction to KeyStore and TrustStore]
 ** <<How KeyStore and TrustStore were Generated>>

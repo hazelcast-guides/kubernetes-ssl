@@ -45,8 +45,8 @@ jobs:
           kubectl apply -f client/deployment.yaml
           podName=$(kubectl get pods --selector='app=hazelcast-client' --output=jsonpath={.items..metadata.name})
           kubectl wait --for=condition=ready pod/$podName --timeout=200s
-          # sleep for 3 seconds so that Spring application is started
-          sleep 3
+          # sleep for 10 seconds so that Spring application is started
+          sleep 10
           kubectl logs pod/$podName
 
       - name: Fail if SSL not enabled

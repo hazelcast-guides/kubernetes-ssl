@@ -45,8 +45,7 @@ jobs:
           kubectl apply -f client/deployment.yaml
           podName=$(kubectl get pods --selector='app=hazelcast-client' --output=jsonpath={.items..metadata.name})
           kubectl wait --for=condition=ready pod/$podName --timeout=200s
-          kubectl logs pod/podName
-
+          kubectl logs pod/$podName
 
       - name: Fail if SSL not enabled
         if: (!contains(steps.ssl_check.outputs.ssl_log, 'SSL is enabled') || !contains(steps.client.outputs.members, 'Members [3]'))

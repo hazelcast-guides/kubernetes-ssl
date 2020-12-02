@@ -19,11 +19,11 @@ This example focuses on the security features and assumes that you have some gen
 
 * Hazelcast on Kubernetes:
 ** https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes README]
-** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes[Hazelcast Kubernetes Code Sample]
-** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes/samples/embedded[Hazelcast Kubernetes Embedded Code Sample]
+** https://guides.hazelcast.org/kubernetes/[Hazelcast Kubernetes Guide]
+** https://guides.hazelcast.org/kubernetes-embedded/[Hazelcast Kubernetes Embedded Guide]
 * Java KeyStore and TrustStore
 ** https://docs.oracle.com/cd/E19509-01/820-3503/6nf1il6er/index.html[Oracle's introduction to KeyStore and TrustStore]
-** https://github.com/hazelcast/hazelcast-code-samples/tree/master/hazelcast-integration/kubernetes/samples/ssl#how-keystore-and-truststore-were-generated[How KeyStore and TrustStore were Generated]
+** <<How KeyStore and TrustStore were Generated>>
 
 The example also assumes you have a running Kubernetes cluster, and the `kubectl` tool installed.
 

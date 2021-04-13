@@ -1,8 +1,0 @@
-hazelcast-client:
-  network:
-    kubernetes:
-      enabled: true
-      service-name: ${serviceName}
-      namespace: ${namespace}
-    ssl:
-      enabled: true

@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: hazelcast
+  name: hz-hazelcast-enterprise
 spec:
   replicas: 3
-  serviceName: hazelcast
+  serviceName: hz-hazelcast-enterprise
   selector:
     matchLabels:
-      app: hazelcast
+      app: hz-hazelcast-enterprise
   template:
     metadata:
       labels:
-        app: hazelcast
+        app: hz-hazelcast-enterprise
     spec:
       containers:
-        - name: hazelcast
+        - name: hz-hazelcast-enterprise
           image: hazelcast/hazelcast-enterprise:4.2
           imagePullPolicy: Always
           ports:
@@ -39,3 +39,17 @@ spec:
       - name: hazelcast-secrets
         secret:
           secretName: keystore
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hz-hazelcast-enterprise
+spec:
+  type: ClusterIP
+  selector:
+    app: hz-hazelcast-enterprise
+  ports:
+  - name: hazelcast
+    port: 5701

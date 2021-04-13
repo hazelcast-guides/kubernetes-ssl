@@ -15,10 +15,10 @@ public class Application {
     @Bean
     public ClientConfig hazelcastConfig() {
         ClientConfig config = new ClientConfig();
-        config.getNetworkConfig().getKubernetesConfig().setEnabled(true);
+        config.getNetworkConfig().addAddress("hz-hazelcast-enterprise");
         config.getNetworkConfig().setSSLConfig(new SSLConfig()
                 .setProperty("trustStore", "truststore")
-                .setProperty("trustStorePassword", System.getenv("KEYSTORE_PASSWORD"))
+                .setProperty("trustStorePassword", "123456")
                 .setEnabled(true));
         return config;
     }

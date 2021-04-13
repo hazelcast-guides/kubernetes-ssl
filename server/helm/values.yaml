@@ -9,8 +9,11 @@ readinessProbe:
   port: 5703
 mancenter:
   secretsMountName: keystore
-  licenseKeySecretName: hz-license-key
-  existingConfigMap: hazelcast-client-configuration
+  yaml:
+    hazelcast-client:
+      network:
+        ssl:
+          enabled: true
   javaOpts: '-Djavax.net.ssl.keyStore=/secrets/keystore -Djavax.net.ssl.keyStorePassword=123456 -Djavax.net.ssl.trustStore=/secrets/truststore -Djavax.net.ssl.trustStorePassword=123456'
 
       

@@ -27,11 +27,6 @@ jobs:
           kubectl create secret generic keystore --from-file=server/keystore --from-file=server/truststore         
           kubectl create secret generic hz-license-key --from-literal key=${{ secrets.LICENSE }}
 
-          kubectl create configmap hazelcast-configuration --from-file=server/hazelcast.yaml
-          kubectl apply -f server/rbac.yaml
-          kubectl apply -f server/statefulset.yaml
-
-
       - name: Deploy Hazelcast Cluster (Helm)
         if: startsWith(matrix.deployment-type, 'helm')
         run: |-

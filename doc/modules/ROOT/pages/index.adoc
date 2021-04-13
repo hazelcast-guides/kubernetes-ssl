@@ -57,9 +57,7 @@ Helm::
 ----
 helm repo add hazelcast https://hazelcast-charts.s3.amazonaws.com/
 helm repo update
-
 kubectl create configmap hazelcast-configuration --from-file=server/helm/hazelcast.yaml
-
 helm install hz -f server/helm/values.yaml hazelcast/hazelcast-enterprise
 ----
 --

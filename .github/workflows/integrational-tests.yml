@@ -11,6 +11,9 @@ jobs:
   run-tests:
     name: Run Intergrational tests using Kind
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deployment-type: [ 'helm', 'kubectl' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,24 +22,41 @@ jobs:
         with:
           version: "v0.9.0"
 
-      - name: Deploy to Kuberenetes
+      - name: Create Secrets
         run: |-
+          kubectl create secret generic keystore --from-file=server/keystore --from-file=server/truststore         
+          kubectl create secret generic hz-license-key --from-literal key=${{ secrets.LICENSE }}
+
           kubectl create configmap hazelcast-configuration --from-file=server/hazelcast.yaml
-          kubectl create secret generic keystore --from-file=server/keystore --from-file=server/truststore --from-literal keystorePassword=123456 --from-literal truststorePassword=123456
-          kubectl create secret generic hz-license-key --from-literal license=${{ secrets.LICENSE }}
           kubectl apply -f server/rbac.yaml
           kubectl apply -f server/statefulset.yaml
 
+
+      - name: Deploy Hazelcast Cluster (Helm)
+        if: startsWith(matrix.deployment-type, 'helm')
+        run: |-
+          helm repo add hazelcast https://hazelcast-charts.s3.amazonaws.com/
+          helm repo update
+          kubectl create configmap hazelcast-configuration --from-file=server/helm/hazelcast.yaml
+          helm install hz -f server/helm/values.yaml hazelcast/hazelcast-enterprise
+
+      - name: Deploy Hazelcast Cluster (Kubectl)
+        if: startsWith(matrix.deployment-type, 'kubectl')
+        run: |-
+          kubectl apply -f https://raw.githubusercontent.com/hazelcast/hazelcast-kubernetes/master/rbac.yaml
+          kubectl create configmap hazelcast-configuration --from-file=server/kubectl/hazelcast.yaml
+          kubectl apply -f server/kubectl/deployment.yaml
+
       - name: Test for successful Deployment
         run: |-
-          kubectl wait --for=condition=ready pod/hazelcast-0 --timeout=150s
-          kubectl wait --for=condition=ready pod/hazelcast-1 --timeout=150s
-          kubectl wait --for=condition=ready pod/hazelcast-2 --timeout=150s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-0 --timeout=150s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-1 --timeout=150s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-2 --timeout=150s
 
       - name: Check for SSL enabled
         id: ssl_check
         run: |-
-          sslEnabledLog=$(kubectl logs pod/hazelcast-0 | grep "SSL is enabled")
+          sslEnabledLog=$(kubectl logs pod/hz-hazelcast-enterprise-0 | grep "BasicSSLContextFactory")
           echo "::set-output name=ssl_log::$sslEnabledLog"
 
       - name: Deploy client

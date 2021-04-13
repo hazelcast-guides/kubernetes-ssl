@@ -27,34 +27,57 @@ This example focuses on the security features and assumes that you have some gen
 
 The example also assumes you have a running Kubernetes cluster, and the `kubectl` tool installed.
 
-== 1. Creating Hazelcast Cluster
+== 1. Create Secrets
 
-Hazelcast must have access to `hazelcast.yaml` as well as `keystore` and `truststore`, so we'll store them as `ConfigMap/Secret`.
-
-[source, shell]
-----
-$ kubectl create configmap hazelcast-configuration --from-file=server/hazelcast.yaml
-$ kubectl create secret generic keystore \
-                 --from-file=server/keystore \
-                 --from-file=server/truststore \
-                 --from-literal keystorePassword=123456 \
-                 --from-literal truststorePassword=123456
-----
-
-Next, you need to create a secret with Hazelcast Enterprise License (if you don't have one, get a trial license key from this https://hazelcast.com/get-started/#deploymenttype-imdg[link]).
+To secure the connection between Hazelcast Server and Hazelcast Client we need to make keys available as secrets.
 
 [source, shell]
 ----
-$ kubectl create secret generic hz-license-key --from-literal license=<hz-license-key>
+$ kubectl create secret generic keystore --from-file=server/keystore --from-file=server/truststore
 ----
 
-Now grant access to Kubernetes API with `rbac.yaml` and deploy Hazelcast cluster to Kubernetes.
+== 2. Start Hazelcast Cluster
+
+Hazelcast SSL is an enterprise feature, so you need to create a secret with Hazelcast Enterprise License (if you don't have one, get a trial license key from this https://hazelcast.com/get-started/#deploymenttype-imdg[link]).
 
 [source, shell]
 ----
-$ kubectl apply -f server/rbac.yaml
-$ kubectl apply -f server/statefulset.yaml
+$ kubectl create secret generic hz-license-key --from-literal key=<hz-license-key>
 ----
+
+Then, you can start Hazelcast Cluster with the following command.
+
+[tabs]
+====
+
+Helm::
++
+--
+[source, bash]
+----
+helm repo add hazelcast https://hazelcast-charts.s3.amazonaws.com/
+helm repo update
+helm install hazelcast hazelcast/hazelcast
+
+kubectl create configmap hazelcast-configuration --from-file=server/helm/hazelcast.yaml
+kubectl create configmap hazelcast-client-configuration --from-file=server/helm/hazelcast-client.yaml
+helm install hazelcast -f server/helm/values.yaml hazelcast/hazelcast-enterprise
+----
+--
+
+Kubectl::
++
+
+--
+[source, bash]
+----
+kubectl create configmap hazelcast-configuration --from-file=server/hazelcast.yaml
+kubectl apply -f server/rbac.yaml
+kubectl apply -f server/statefulset.yaml
+----
+--
+
+====
 
 You can check in the logs that Hazelcast cluster has been formed and that SSL is enabled for the communication.
 

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: hazelcast
-          image: hazelcast/hazelcast-enterprise:4.1
+          image: hazelcast/hazelcast-enterprise:4.2
           imagePullPolicy: Always
           ports:
           - containerPort: 5701
@@ -24,19 +24,9 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: hz-license-key
-                key: license
-          - name: KEYSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystore
-                key: keystorePassword
-          - name: TRUSTSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystore
-                key: truststorePassword
+                key: key
           - name: JAVA_OPTS
-            value: "-Dhazelcast.config=/data/hazelcast/configuration/hazelcast.yaml -Djavax.net.ssl.keyStore=/data/hazelcast/secrets/keystore -Djavax.net.ssl.keyStorePassword=${KEYSTORE_PASSWORD} -Djavax.net.ssl.trustStore=/data/hazelcast/secrets/truststore -Djavax.net.ssl.trustStorePassword=${TRUSTSTORE_PASSWORD}"
+            value: "-Dhazelcast.config=/data/hazelcast/configuration/hazelcast.yaml -Djavax.net.ssl.keyStore=/data/hazelcast/secrets/keystore -Djavax.net.ssl.keyStorePassword=123456 -Djavax.net.ssl.trustStore=/data/hazelcast/secrets/truststore -Djavax.net.ssl.trustStorePassword=123456"
           volumeMounts:
           - name: hazelcast-configuration
             mountPath: /data/hazelcast/configuration

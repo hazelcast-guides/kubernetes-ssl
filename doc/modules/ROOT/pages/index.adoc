@@ -104,7 +104,7 @@ docker build -t hazelcastguides/hazelcast-client-ssl client
 docker push hazelcastguides/hazelcast-client-ssl
 ----
 
-If you want to build your own Docker image, then please make sure you change `hazelcastguides` to your Docker Hub name and update `client/deployment.yaml` accordingly. Otherwise, if can reuse `hazelcastguides/hazelcast-client-ssl`.
+If you want to build your own Docker image, then please make sure you change `hazelcastguides` to your Docker Hub name and update `client/deployment.yaml` accordingly. Otherwise, you can use `hazelcastguides/hazelcast-client-ssl`.
 
 Finally, you can deploy the client application.
 

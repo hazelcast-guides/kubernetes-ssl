@@ -14,16 +14,10 @@ spec:
     spec:
       containers:
         - name: hazelcast-client
-          image: sbishyr/hazelcast-client
+          image: hazelcastguides/hazelcast-client-ssl
           imagePullPolicy: Always
           ports:
           - containerPort: 8080
-          env:
-          - name: KEYSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystore
-                key: keystorePassword
 
 ---
 

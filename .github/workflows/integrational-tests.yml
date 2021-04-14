@@ -44,9 +44,10 @@ jobs:
 
       - name: Wait for Hazelcast Cluster to start
         run: |-
-          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-0 --timeout=500s
-          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-1 --timeout=500s
-          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-2 --timeout=500s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-0 --timeout=300s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-1 --timeout=300s
+          kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-2 --timeout=300s
+          sleep 10
 
       - name: Check for SSL enabled
         id: ssl_check

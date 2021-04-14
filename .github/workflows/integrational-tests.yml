@@ -42,11 +42,12 @@ jobs:
           kubectl create configmap hazelcast-configuration --from-file=server/kubectl/hazelcast.yaml
           kubectl apply -f server/kubectl/deployment.yaml
 
-      - name: Test for successful Deployment
+      - name: Wait for Hazelcast Cluster to start
         run: |-
           kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-0 --timeout=500s
           kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-1 --timeout=500s
           kubectl wait --for=condition=ready pod/hz-hazelcast-enterprise-2 --timeout=500s
+          sleep 10
 
       - name: Check for SSL enabled
         id: ssl_check

@@ -171,9 +171,8 @@ Helm::
 [source, bash]
 ----
 kubectl delete -f client/deployment.yaml
-kubectl delete -f server/kubectl/deployment.yaml
+helm uninstall hz
 kubectl delete configmap hazelcast-configuration
-kubectl delete -f https://raw.githubusercontent.com/hazelcast/hazelcast-kubernetes/master/rbac.yaml
 kubectl delete secret keystore
 kubectl delete secret hz-license-key
 ----
@@ -186,8 +185,9 @@ Kubectl::
 [source, bash]
 ----
 kubectl delete -f client/deployment.yaml
-helm uninstall hz
+kubectl delete -f server/kubectl/deployment.yaml
 kubectl delete configmap hazelcast-configuration
+kubectl delete -f https://raw.githubusercontent.com/hazelcast/hazelcast-kubernetes/master/rbac.yaml
 kubectl delete secret keystore
 kubectl delete secret hz-license-key
 ----

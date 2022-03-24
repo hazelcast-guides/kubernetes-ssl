@@ -1,31 +1,30 @@
-:github-address: https://github.com/hazelcast-guides/kubernetes-ssl
+= Hazelcast with SSL in Kubernetes
 :templates-url: templates:ROOT:page$/
-:hazelcast: Hazelcast IMDG
+:page-layout: tutorial
+:page-product: imdg
+:page-categories: Security, Deployment, Kubernetes
+:page-lang:
+:page-enterprise: true
+:page-est-time: 30 mins
 :framework: Kubernetes
-
-= Hazelcast with SSL (Enterprise Only)
-
-This a complete example presenting how to use Hazelcast Enterprise with SSL enabled on the connections between Hazelcast Members and Hazelcast Client.
-
-include::{templates-url}/link-to-repo.adoc[]
+:description: In this tutorial you will learn how to enable SSL between Hazelcast members and Hazelcast clients in Kubernetes.
 
 == What You’ll Learn
 
-In this guide you will learn how to enable SSL between Hazelcast Members and Hazelcast Client.
+{description}
 
-== Introduction
+== Before you Begin
 
-This example focuses on the security features and assumes that you have some general knowledge about:
+This example focuses on the security features and assumes that you have some general knowledge about the following topics:
 
 * Hazelcast on Kubernetes:
 ** https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes README]
-** xref:kubernetes:ROOT:index.adoc[Hazelcast on Kubernetes Guide]
-** xref:kubernetes-embedded:ROOT:index.adoc[Embedded Hazelcast on Kubernetes Guide]
+** xref:kubernetes.adoc[]
+** xref:kubernetes-embedded.adoc[]
 * Java KeyStore and TrustStore
 ** https://docs.oracle.com/cd/E19509-01/820-3503/6nf1il6er/index.html[Oracle's introduction to KeyStore and TrustStore]
-** <<How KeyStore and TrustStore were Generated>>
 
-The example also assumes you have a running Kubernetes cluster, and the `kubectl` tool installed.
+This tutorial also assumes you have a running Kubernetes cluster, and the `kubectl` tool installed.
 
 == 1. Create Secrets
 

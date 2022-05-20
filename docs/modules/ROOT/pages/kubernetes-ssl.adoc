@@ -2,14 +2,12 @@
 :templates-url: templates:ROOT:page$/
 :page-layout: tutorial
 :page-product: imdg
-:page-categories: Security, Deployment, Kubernetes
+:page-categories: Security, Deployment, Cloud Native
 :page-lang:
 :page-enterprise: true
 :page-est-time: 30 mins
 :framework: Kubernetes
-:description: In this tutorial you will learn how to enable SSL between Hazelcast members and Hazelcast clients in Kubernetes.
-
-== What You’ll Learn
+:description: Enable SSL between Hazelcast members and Hazelcast clients in Kubernetes.
 
 {description}
 

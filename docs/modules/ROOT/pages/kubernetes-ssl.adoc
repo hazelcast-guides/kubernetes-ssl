@@ -16,6 +16,7 @@
 This example focuses on the security features and assumes that you have some general knowledge about the following topics:
 
 * Hazelcast on Kubernetes:
+** https://docs.hazelcast.com/hazelcast/latest/kubernetes/deploying-in-kubernetes[Hazelcast Kubernetes Doc]
 ** xref:kubernetes.adoc[]
 ** xref:kubernetes-embedded.adoc[]
 * Java KeyStore and TrustStore

@@ -15,12 +15,12 @@ spec:
     spec:
       containers:
         - name: hz-hazelcast-enterprise
-          image: hazelcast/hazelcast-enterprise:4.2
+          image: hazelcast/hazelcast-enterprise:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 5701
           env:
-          - name: HZ_LICENSE_KEY
+          - name: HZ_LICENSEKEY
             valueFrom:
               secretKeyRef:
                 name: hz-license-key

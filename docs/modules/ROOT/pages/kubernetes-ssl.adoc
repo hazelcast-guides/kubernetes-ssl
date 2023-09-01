@@ -16,7 +16,7 @@
 This example focuses on the security features and assumes that you have some general knowledge about the following topics:
 
 * Hazelcast on Kubernetes:
-** https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes README]
+** https://docs.hazelcast.com/hazelcast/latest/kubernetes/deploying-in-kubernetes[Hazelcast Kubernetes Doc]
 ** xref:kubernetes.adoc[]
 ** xref:kubernetes-embedded.adoc[]
 * Java KeyStore and TrustStore
@@ -65,7 +65,7 @@ Kubectl::
 --
 [source, bash]
 ----
-kubectl apply -f https://raw.githubusercontent.com/hazelcast/hazelcast-kubernetes/master/rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/hazelcast/hazelcast/master/kubernetes-rbac.yaml
 kubectl create configmap hazelcast-configuration --from-file=server/kubectl/hazelcast.yaml
 kubectl apply -f server/kubectl/deployment.yaml
 ----
@@ -184,7 +184,7 @@ Kubectl::
 kubectl delete -f client/deployment.yaml
 kubectl delete -f server/kubectl/deployment.yaml
 kubectl delete configmap hazelcast-configuration
-kubectl delete -f https://raw.githubusercontent.com/hazelcast/hazelcast-kubernetes/master/rbac.yaml
+kubectl delete -f https://raw.githubusercontent.com/hazelcast/hazelcast/master/kubernetes-rbac.yaml
 kubectl delete secret keystore
 kubectl delete secret hz-license-key
 ----
